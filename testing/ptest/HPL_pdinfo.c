@@ -1,36 +1,36 @@
-/* 
- * -- High Performance Computing Linpack Benchmark (HPL)                
- *    HPL - 2.2 - February 24, 2016                          
- *    Antoine P. Petitet                                                
- *    University of Tennessee, Knoxville                                
- *    Innovative Computing Laboratory                                 
- *    (C) Copyright 2000-2008 All Rights Reserved                       
- *                                                                      
- * -- Copyright notice and Licensing terms:                             
- *                                                                      
+/*
+ * -- High Performance Computing Linpack Benchmark (HPL)
+ *    HPL - 2.2 - February 24, 2016
+ *    Antoine P. Petitet
+ *    University of Tennessee, Knoxville
+ *    Innovative Computing Laboratory
+ *    (C) Copyright 2000-2008 All Rights Reserved
+ *
+ * -- Copyright notice and Licensing terms:
+ *
  * Redistribution  and  use in  source and binary forms, with or without
  * modification, are  permitted provided  that the following  conditions
- * are met:                                                             
- *                                                                      
+ * are met:
+ *
  * 1. Redistributions  of  source  code  must retain the above copyright
- * notice, this list of conditions and the following disclaimer.        
- *                                                                      
+ * notice, this list of conditions and the following disclaimer.
+ *
  * 2. Redistributions in binary form must reproduce  the above copyright
  * notice, this list of conditions,  and the following disclaimer in the
- * documentation and/or other materials provided with the distribution. 
- *                                                                      
+ * documentation and/or other materials provided with the distribution.
+ *
  * 3. All  advertising  materials  mentioning  features  or  use of this
- * software must display the following acknowledgement:                 
+ * software must display the following acknowledgement:
  * This  product  includes  software  developed  at  the  University  of
- * Tennessee, Knoxville, Innovative Computing Laboratory.             
- *                                                                      
+ * Tennessee, Knoxville, Innovative Computing Laboratory.
+ *
  * 4. The name of the  University,  the name of the  Laboratory,  or the
  * names  of  its  contributors  may  not  be used to endorse or promote
  * products  derived   from   this  software  without  specific  written
- * permission.                                                          
- *                                                                      
- * -- Disclaimer:                                                       
- *                                                                      
+ * permission.
+ *
+ * -- Disclaimer:
+ *
  * THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -41,9 +41,9 @@
  * DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
  * THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * Include files
  */
@@ -112,7 +112,7 @@ void HPL_pdinfo
    int *                            ALIGN;
 #endif
 {
-/* 
+/*
  * Purpose
  * =======
  *
@@ -131,140 +131,223 @@ void HPL_pdinfo
  *         test ratio.  TEST->epsil is the relative machine precision of
  *         the distributed computer.  Finally  the test counters, kfail,
  *         kpass, kskip, ktest are initialized to zero.
+ * TEST（全局输出）               HPL_T_test *
+ *         在输入时，TEST指向一个测试数据结构。在退出时，
+ *         此数据结构的字段初始化如下：
+ *         TEST->outfp指定结果将打印的输出文件。它仅由进程网格的进程0定义和使用。
+ *         TEST->thrsh指定测试比率的阈值。TEST->epsil是分布式计算的相对机器精度。
+ *         最后，测试计数器kfail，kpass，kskip，ktest初始化为零。
  *
  * NS      (global output)               int *
  *         On exit,  NS  specifies the number of different problem sizes
  *         to be tested. NS is less than or equal to HPL_MAX_PARAM.
+ * NS（全局输出）               int *
+ *         在退出时，NS指定要测试的不同问题大小的数量。
+ *         NS小于或等于HPL_MAX_PARAM。
  *
  * N       (global output)               int *
  *         On entry, N is an array of dimension HPL_MAX_PARAM.  On exit,
  *         the first NS entries of this array contain the  problem sizes
  *         to run the code with.
+ * N（全局输出）               int *
+ *         在输入时，N是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NS个条目包含要运行代码的问题大小。
  *
  * NBS     (global output)               int *
  *         On exit,  NBS  specifies the number of different distribution
  *         blocking factors to be tested. NBS must be less than or equal
  *         to HPL_MAX_PARAM.
+ * NBS（全局输出）               int *
+ *         在退出时，NBS指定要测试的不同分布阻塞因子的数量。
+ *         NBS必须小于或等于HPL_MAX_PARAM。
  *
  * NB      (global output)               int *
  *         On exit,  PMAPPIN  specifies the process mapping onto the no-
  *         des of the  MPI machine configuration.  PMAPPIN  defaults  to
  *         row-major ordering.
+ * NB（全局输出）               int *
+ *         在退出时，PMAPPIN指定映射到MPI机器配置的节点的进程。
+ *         PMAPPIN默认为行主序排序。
  *
  * PMAPPIN (global output)               HPL_T_ORDER *
  *         On entry, NB is an array of dimension HPL_MAX_PARAM. On exit,
  *         the first NBS entries of this array contain the values of the
  *         various distribution blocking factors, to run the code with.
+ * PMAPPIN（全局输出）               HPL_T_ORDER *
+ *         在输入时，NB是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NBS个条目包含用于运行代码的各种分布阻塞因子的值。
  *
  * NPQS    (global output)               int *
  *         On exit, NPQS  specifies the  number of different values that
  *         can be used for P and Q, i.e., the number of process grids to
  *         run  the  code with.  NPQS must be  less  than  or  equal  to
  *         HPL_MAX_PARAM.
+ * NPQS（全局输出）               int *
+ *         在退出时，NPQS指定可用于P和Q的不同值的数量，即可以用于运行代码的进程网格的数量。
+ *         NPQS必须小于或等于HPL_MAX_PARAM。
  *
  * P       (global output)               int *
  *         On entry, P  is an array of dimension HPL_MAX_PARAM. On exit,
  *         the first NPQS entries of this array contain the values of P,
  *         the number of process rows of the  NPQS grids to run the code
  *         with.
+ * P（全局输出）               int *
+ *         在输入时，P是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NPQS个条目包含P的值，即NPQS网格的进程行数，用于运行代码。
  *
  * Q       (global output)               int *
  *         On entry, Q  is an array of dimension HPL_MAX_PARAM. On exit,
  *         the first NPQS entries of this array contain the values of Q,
  *         the number of process columns of the  NPQS  grids to  run the
  *         code with.
+ * Q（全局输出）               int *
+ *         在输入时，Q是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NPQS个条目包含Q的值，即NPQS网格的进程列数，用于运行代码。
  *
  * NPFS    (global output)               int *
  *         On exit, NPFS  specifies the  number of different values that
  *         can be used for PF : the panel factorization algorithm to run
  *         the code with. NPFS is less than or equal to HPL_MAX_PARAM.
+ * NPFS（全局输出）               int *
+ *         在退出时，NPFS指定可用于PF（面板因式分解算法）的不同值的数量，用于运行代码。
+ *         NPFS小于或等于HPL_MAX_PARAM。
  *
  * PF      (global output)               HPL_T_FACT *
  *         On entry, PF is an array of dimension HPL_MAX_PARAM. On exit,
  *         the first  NPFS  entries  of this array  contain  the various
  *         panel factorization algorithms to run the code with.
+ * PF（全局输出）               HPL_T_FACT *
+ *         在输入时，PF是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NPFS个条目包含用于运行代码的各种面板因式分解算法。
  *
  * NBMS    (global output)               int *
  *         On exit,  NBMS  specifies  the  number  of  various recursive
  *         stopping criteria  to be tested.  NBMS  must be  less than or
  *         equal to HPL_MAX_PARAM.
+ * NBMS（全局输出）               int *
+ *         在退出时，NBMS指定要测试的各种递归停止准则的数量。
+ *         NBMS必须小于或等于HPL_MAX_PARAM。
  *
  * NBM     (global output)               int *
  *         On entry,  NBM  is an array of  dimension  HPL_MAX_PARAM.  On
  *         exit, the first NBMS entries of this array contain the values
  *         of the various recursive stopping criteria to be tested.
+ * NBM（全局输出）               int *
+ *         在输入时，NBM是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NBMS个条目包含要测试的各种递归停止准则的值。
  *
  * NDVS    (global output)               int *
  *         On exit,  NDVS  specifies  the number  of various numbers  of
  *         panels in recursion to be tested.  NDVS is less than or equal
  *         to HPL_MAX_PARAM.
+ * NDVS（全局输出）               int *
+ *         在退出时，NDVS指定要测试的递归中各种面板数量的数量。
+ *         NDVS小于或等于HPL_MAX_PARAM。
  *
  * NDV     (global output)               int *
  *         On entry,  NDV  is an array of  dimension  HPL_MAX_PARAM.  On
  *         exit, the first NDVS entries of this array contain the values
  *         of the various numbers of panels in recursion to be tested.
+ * NDV（全局输出）               int *
+ *         在输入时，NDV是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NDVS个条目包含要测试的递归中各种面板数量的值。
  *
  * NRFS    (global output)               int *
  *         On exit, NRFS  specifies the  number of different values that
  *         can be used for RF : the recursive factorization algorithm to
  *         be tested. NRFS is less than or equal to HPL_MAX_PARAM.
+ * NRFS（全局输出）               int *
+ *         在退出时，NRFS指定可用于RF（递归因式分解算法）的不同值的数量，用于测试。
+ *         NRFS小于或等于HPL_MAX_PARAM。
  *
  * RF      (global output)               HPL_T_FACT *
  *         On entry, RF is an array of dimension HPL_MAX_PARAM. On exit,
  *         the first  NRFS  entries  of  this array contain  the various
  *         recursive factorization algorithms to run the code with.
+ * RF（全局输出）               HPL_T_FACT *
+ *         在输入时，RF是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NRFS个条目包含用于运行代码的各种递归因式分解算法。
  *
  * NTPS    (global output)               int *
  *         On exit, NTPS  specifies the  number of different values that
  *         can be used for the  broadcast topologies  to be tested. NTPS
  *         is less than or equal to HPL_MAX_PARAM.
+ * NTPS（全局输出）               int *
+ *         在退出时，NTPS指定可用于测试的广播拓扑的不同值的数量。
+ *         NTPS小于或等于HPL_MAX_PARAM。
  *
  * TP      (global output)               HPL_T_TOP *
  *         On entry, TP is an array of dimension HPL_MAX_PARAM. On exit,
  *         the  first NTPS  entries of this  array  contain  the various
  *         broadcast (along rows) topologies to run the code with.
+ * TP（全局输出）               HPL_T_TOP *
+ *         在输入时，TP是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NTPS个条目包含用于运行代码的各种广播（沿行）拓扑。
  *
  * NDHS    (global output)               int *
  *         On exit, NDHS  specifies the  number of different values that
  *         can be used for the  lookahead depths to be  tested.  NDHS is
  *         less than or equal to HPL_MAX_PARAM.
+ * NDHS（全局输出）               int *
+ *         在退出时，NDHS指定可用于测试的前瞻深度的不同值的数量。
+ *         NDHS小于或等于HPL_MAX_PARAM。
  *
  * DH      (global output)               int *
  *         On entry,  DH  is  an array of  dimension  HPL_MAX_PARAM.  On
  *         exit, the first NDHS entries of this array contain the values
  *         of lookahead depths to run the code with.  Such a value is at
  *         least 0 (no-lookahead) or greater than zero.
+ * DH（全局输出）               int *
+ *         在输入时，DH是一个维度为HPL_MAX_PARAM的数组。在退出时，
+ *         此数组的前NDHS个条目包含要运行代码的前瞻深度的值。
+ *         这样的值至少为0（无前瞻）或大于零。
  *
  * FSWAP   (global output)               HPL_T_SWAP *
  *         On exit, FSWAP specifies the swapping algorithm to be used in
  *         all tests.
+ * FSWAP（全局输出）               HPL_T_SWAP *
+ *         在退出时，FSWAP指定在所有测试中要使用的交换算法
  *
  * TSWAP   (global output)               int *
  *         On exit,  TSWAP  specifies the swapping threshold as a number
  *         of columns when the mixed swapping algorithm was chosen.
+ * TSWAP（全局输出）               int *
+ *         在退出时，TSWAP指定在选择混合交换算法时作为列数的交换阈值。
  *
  * L1NOTRA (global output)               int *
  *         On exit, L1NOTRAN specifies whether the upper triangle of the
  *         panels of columns  should  be stored  in  no-transposed  form
  *         (L1NOTRAN=1) or in transposed form (L1NOTRAN=0).
+ * L1NOTRA（全局输出）               int *
+ *         在退出时，L1NOTRAN指定列的面板的上三角是否应以非转置形式（L1NOTRAN=1）
+ *         存储还是以转置形式（L1NOTRAN=0）存储。
  *
  * UNOTRAN (global output)               int *
  *         On exit, UNOTRAN  specifies whether the panels of rows should
  *         be stored in  no-transposed form  (UNOTRAN=1)  or  transposed
  *         form (UNOTRAN=0) during their broadcast.
+ * UNOTRAN（全局输出）               int *
+ *         在退出时，UNOTRAN指定行的面板是否在广播期间以非转置形式（UNOTRAN=1）
+ *         还是转置形式（UNOTRAN=0）存储。
  *
  * EQUIL   (global output)               int *
  *         On exit,  EQUIL  specifies  whether  equilibration during the
  *         swap-broadcast  of  the  panel of rows  should  be  performed
  *         (EQUIL=1) or not (EQUIL=0).
+ * EQUIL（全局输出）               int *
+ *         在退出时，EQUIL指定在行的面板进行交换广播期间是否执行均衡（EQUIL=1）
+ *         还是不执行均衡（EQUIL=0）。
  *
  * ALIGN   (global output)               int *
  *         On exit,  ALIGN  specifies the alignment  of  the dynamically
  *         allocated buffers in double precision words. ALIGN is greater
  *         than zero.
+ * ALIGN（全局输出）               int *
+ *         在退出时，ALIGN指定动态分配的双精度缓冲区的对齐方式，以双精度字为单位。
+ *         ALIGN大于零。
  *
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * .. Local Variables ..
  */
@@ -295,7 +378,7 @@ void HPL_pdinfo
  * Open file and skip data file header
  */
       if( ( infp = fopen( "HPL.dat", "r" ) ) == NULL )
-      { 
+      {
          HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
                     "cannot open file HPL.dat" );
          error = 1; goto label_error;
@@ -324,7 +407,7 @@ void HPL_pdinfo
  *
  * Problem size (>=0) (N)
  */
-      (void) fgets( line, HPL_LINE_MAX - 2, infp ); 
+      (void) fgets( line, HPL_LINE_MAX - 2, infp );
       (void) sscanf( line, "%s", num ); *NS = atoi( num );
       if( ( *NS < 1 ) || ( *NS > HPL_MAX_PARAM ) )
       {
@@ -364,7 +447,7 @@ void HPL_pdinfo
          (void) sscanf( lineptr, "%s", num ); lineptr += strlen( num ) + 1;
          if( ( NB[ i ] = atoi( num ) ) < 1 )
          {
-            HPL_pwarn( stderr, __LINE__, "HPL_pdinfo", 
+            HPL_pwarn( stderr, __LINE__, "HPL_pdinfo",
                        "Value of NB less than 1" );
             error = 1; goto label_error;
          }
@@ -584,7 +667,7 @@ void HPL_pdinfo
  */
       (void) fgets( line, HPL_LINE_MAX - 2, infp );
       (void) sscanf( line, "%s", num ); *L1NOTRAN = atoi( num );
-      if( ( *L1NOTRAN != 0 ) && ( *L1NOTRAN != 1 ) ) *L1NOTRAN = 0; 
+      if( ( *L1NOTRAN != 0 ) && ( *L1NOTRAN != 1 ) ) *L1NOTRAN = 0;
 /*
  * U  in (no-)transposed form (0 or 1)
  */
@@ -628,15 +711,18 @@ label_error:
    }
 /*
  * Compute and broadcast machine epsilon
+ * 计算并广播机器epsilon（机器精度）
  */
    TEST->epsil = HPL_pdlamch( MPI_COMM_WORLD, HPL_MACH_EPS );
 /*
  * Pack information arrays and broadcast
+ * 打包信息数组并进行广播
  */
    (void) HPL_broadcast( (void *)(&(TEST->thrsh)), 1, HPL_DOUBLE, 0,
                          MPI_COMM_WORLD );
 /*
  * Broadcast array sizes
+ * 广播数组大小
  */
    iwork = (int *)malloc( (size_t)(15) * sizeof( int ) );
    if( rank == 0 )
@@ -661,8 +747,9 @@ label_error:
    if( iwork ) free( iwork );
 /*
  * Pack information arrays and broadcast
+ * 打包信息数组并进行广播
  */
-   lwork = (*NS) + (*NBS) + 2 * (*NPQS) + (*NPFS) + (*NBMS) + 
+   lwork = (*NS) + (*NBS) + 2 * (*NPQS) + (*NPFS) + (*NBMS) +
            (*NDVS) + (*NRFS) + (*NTPS) + (*NDHS) + 1;
    iwork = (int *)malloc( (size_t)(lwork) * sizeof( int ) );
    if( rank == 0 )

@@ -1,36 +1,36 @@
-/* 
- * -- High Performance Computing Linpack Benchmark (HPL)                
- *    HPL - 2.2 - February 24, 2016                          
- *    Antoine P. Petitet                                                
- *    University of Tennessee, Knoxville                                
- *    Innovative Computing Laboratory                                 
- *    (C) Copyright 2000-2008 All Rights Reserved                       
- *                                                                      
- * -- Copyright notice and Licensing terms:                             
- *                                                                      
+/*
+ * -- High Performance Computing Linpack Benchmark (HPL)
+ *    HPL - 2.2 - February 24, 2016
+ *    Antoine P. Petitet
+ *    University of Tennessee, Knoxville
+ *    Innovative Computing Laboratory
+ *    (C) Copyright 2000-2008 All Rights Reserved
+ *
+ * -- Copyright notice and Licensing terms:
+ *
  * Redistribution  and  use in  source and binary forms, with or without
  * modification, are  permitted provided  that the following  conditions
- * are met:                                                             
- *                                                                      
+ * are met:
+ *
  * 1. Redistributions  of  source  code  must retain the above copyright
- * notice, this list of conditions and the following disclaimer.        
- *                                                                      
+ * notice, this list of conditions and the following disclaimer.
+ *
  * 2. Redistributions in binary form must reproduce  the above copyright
  * notice, this list of conditions,  and the following disclaimer in the
- * documentation and/or other materials provided with the distribution. 
- *                                                                      
+ * documentation and/or other materials provided with the distribution.
+ *
  * 3. All  advertising  materials  mentioning  features  or  use of this
- * software must display the following acknowledgement:                 
+ * software must display the following acknowledgement:
  * This  product  includes  software  developed  at  the  University  of
- * Tennessee, Knoxville, Innovative Computing Laboratory.             
- *                                                                      
+ * Tennessee, Knoxville, Innovative Computing Laboratory.
+ *
  * 4. The name of the  University,  the name of the  Laboratory,  or the
  * names  of  its  contributors  may  not  be used to endorse or promote
  * products  derived   from   this  software  without  specific  written
- * permission.                                                          
- *                                                                      
- * -- Disclaimer:                                                       
- *                                                                      
+ * permission.
+ *
+ * -- Disclaimer:
+ *
  * THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -41,9 +41,9 @@
  * DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
  * THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * Include files
  */
@@ -68,7 +68,7 @@ void HPL_pdtest
    const int                        NB;
 #endif
 {
-/* 
+/*
  * Purpose
  * =======
  *
@@ -77,6 +77,8 @@ void HPL_pdtest
  * This function generates  the data, calls  and times the linear system
  * solver,  checks  the  accuracy  of the  obtained vector solution  and
  * writes this information to the file pointed to by TEST->outfp.
+ * HPL_pdtest在给定一组参数（如进程网格、问题大小、分布阻塞因子等）的情况下执行一个测试。
+ * 该函数生成数据，调用并计时线性系统求解器，检查获得的向量解的准确性，并将此信息写入TEST->outfp指向的文件。
  *
  * Arguments
  * =========
@@ -97,25 +99,41 @@ void HPL_pdtest
  *         incremented by one;  if the test fails, kfail is incremented
  *         by one; if the test is skipped, kskip is incremented by one.
  *         ktest is left unchanged.
+ * TEST（全局输入）               HPL_T_test *
+ *         在输入时，TEST指向一个测试数据结构：outfp指定将打印结果的输出文件。
+ *         它仅由网格的进程0定义和使用。thrsh指定测试比率的阈值。
+ *         具体而言，只有当满足以下不等式时，测试才被声明为“通过”：
+ *         ||Ax-b||_oo / ( epsil * ( || x ||_oo * || A ||_oo + || b ||_oo ) * N )  < thrsh。
+ *         epsil是分布式计算的相对机器精度。最后，测试计数器kfail、kpass、kskip和ktest按以下方式更新：
+ *         如果测试通过，则kpass增加一；如果测试失败，则kfail增加一；如果测试被跳过，则kskip增加一。
+ *         ktest保持不变。
  *
  * GRID    (local input)                 HPL_T_grid *
  *         On entry,  GRID  points  to the data structure containing the
  *         process grid information.
+ * GRID（局部输入）                 HPL_T_grid *
+ *         在输入时，GRID指向包含进程网格信息的数据结构。
  *
  * ALGO    (global input)                HPL_T_palg *
  *         On entry,  ALGO  points to  the data structure containing the
  *         algorithmic parameters to be used for this test.
+ * ALGO（全局输入）                HPL_T_palg *
+ *         在输入时，ALGO指向包含用于此测试的算法参数的数据结构。
  *
  * N       (global input)                const int
  *         On entry,  N specifies the order of the coefficient matrix A.
  *         N must be at least zero.
+ * N（全局输入）                const int
+ *         在输入时，N指定系数矩阵A的阶数。N必须至少为零。
  *
  * NB      (global input)                const int
  *         On entry,  NB specifies the blocking factor used to partition
  *         and distribute the matrix A. NB must be larger than one.
+ * NB（全局输入）                const int
+ *         在输入时，NB指定用于划分和分发矩阵A的阻塞因子。NB必须大于一
  *
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * .. Local Variables ..
  */
@@ -139,19 +157,24 @@ void HPL_pdtest
    (void) HPL_grid_info( GRID, &nprow, &npcol, &myrow, &mycol );
 
    mat.n  = N; mat.nb = NB; mat.info = 0;
-   mat.mp = HPL_numroc( N, NB, NB, myrow, 0, nprow );
+   mat.mp = HPL_numroc( N, NB, NB, myrow, 0, nprow ); /* 本地行数目 */
    nq     = HPL_numroc( N, NB, NB, mycol, 0, npcol );
-   mat.nq = nq + 1;
+   mat.nq = nq + 1; /* 本地列数目 */
 /*
  * Allocate matrix, right-hand-side, and vector solution x. [ A | b ] is
  * N by N+1.  One column is added in every process column for the solve.
  * The  result  however  is stored in a 1 x N vector replicated in every
  * process row. In every process, A is lda * (nq+1), x is 1 * nq and the
- * workspace is mp. 
+ * workspace is mp.
  *
  * Ensure that lda is a multiple of ALIGN and not a power of 2
+ * 分配矩阵、右侧向量和向量解x。 [ A | b ] 是N乘以N+1。 在每个进程列中为求解添加了一列。
+ * 然而，结果存储在在每个进程行中复制的1乘以N向量中。在每个进程中，A是lda * (nq+1)，x是1 * nq，
+ * 并且工作空间是mp。
+ *
+ * 确保lda是ALIGN的倍数，而且不是2的幂。
  */
-   mat.ld = ( ( Mmax( 1, mat.mp ) - 1 ) / ALGO->align ) * ALGO->align;
+   mat.ld = ( ( Mmax( 1, mat.mp ) - 1 ) / ALGO->align ) * ALGO->align; /* 本地主维度 */
    do
    {
       ii = ( mat.ld += ALGO->align ); ip2 = 1;
@@ -161,7 +184,7 @@ void HPL_pdtest
 /*
  * Allocate dynamic memory
  */
-   vptr = (void*)malloc( ( (size_t)(ALGO->align) + 
+   vptr = (void*)malloc( ( (size_t)(ALGO->align) +
                            (size_t)(mat.ld+1) * (size_t)(mat.nq) ) *
                          sizeof(double) );
    info[0] = (vptr == NULL); info[1] = myrow; info[2] = mycol;
@@ -178,6 +201,7 @@ void HPL_pdtest
    }
 /*
  * generate matrix and right-hand-side, [ A | b ] which is N by N+1.
+ * 生成矩阵和右侧向量 [ A | b ]，其大小为 N 乘以 N+1
  */
    mat.A  = (double *)HPL_PTR( vptr,
                                ((size_t)(ALGO->align) * sizeof(double) ) );
@@ -198,7 +222,7 @@ void HPL_pdtest
    HPL_ptimer( 0 );
    time( &current_time_end );
 #ifdef HPL_CALL_VSIPL
-   (void) vsip_blockrelease_d( mat.block, VSIP_TRUE ); 
+   (void) vsip_blockrelease_d( mat.block, VSIP_TRUE );
    vsip_blockdestroy_d( mat.block );
 #endif
 /*
@@ -226,17 +250,17 @@ void HPL_pdtest
  * 2/3 N^3 - 1/2 N^2 flops for LU factorization + 2 N^2 flops for solve.
  * Print WALL time
  */
-      Gflops = ( ( (double)(N) /   1.0e+9 ) * 
-                 ( (double)(N) / wtime[0] ) ) * 
+      Gflops = ( ( (double)(N) /   1.0e+9 ) *
+                 ( (double)(N) / wtime[0] ) ) *
                  ( ( 2.0 / 3.0 ) * (double)(N) + ( 3.0 / 2.0 ) );
 
-      cpfact = ( ( (HPL_T_FACT)(ALGO->pfact) == 
+      cpfact = ( ( (HPL_T_FACT)(ALGO->pfact) ==
                    (HPL_T_FACT)(HPL_LEFT_LOOKING) ) ?  (char)('L') :
                  ( ( (HPL_T_FACT)(ALGO->pfact) == (HPL_T_FACT)(HPL_CROUT) ) ?
                    (char)('C') : (char)('R') ) );
-      crfact = ( ( (HPL_T_FACT)(ALGO->rfact) == 
+      crfact = ( ( (HPL_T_FACT)(ALGO->rfact) ==
                    (HPL_T_FACT)(HPL_LEFT_LOOKING) ) ?  (char)('L') :
-                 ( ( (HPL_T_FACT)(ALGO->rfact) == (HPL_T_FACT)(HPL_CROUT) ) ? 
+                 ( ( (HPL_T_FACT)(ALGO->rfact) == (HPL_T_FACT)(HPL_CROUT) ) ?
                    (char)('C') : (char)('R') ) );
 
       if(      ALGO->btopo == HPL_1RING   ) ctop = '0';
@@ -326,7 +350,7 @@ void HPL_pdtest
    if( mat.info != 0 )
    {
       if( ( myrow == 0 ) && ( mycol == 0 ) )
-         HPL_pwarn( TEST->outfp, __LINE__, "HPL_pdtest", "%s %d, %s", 
+         HPL_pwarn( TEST->outfp, __LINE__, "HPL_pdtest", "%s %d, %s",
                     "Error code returned by solve is", mat.info, "skip" );
       (TEST->kskip)++;
       if( vptr ) free( vptr ); return;
@@ -413,7 +437,7 @@ void HPL_pdtest
          "||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)= ", resid1,
          " ...... ", ( resid1 < TEST->thrsh ? "PASSED" : "FAILED" ) );
 
-      if( resid1 >= TEST->thrsh ) 
+      if( resid1 >= TEST->thrsh )
       {
          HPL_fprintf( TEST->outfp, "%s%18.6f\n",
          "||Ax-b||_oo  . . . . . . . . . . . . . . . . . = ", resid0 );

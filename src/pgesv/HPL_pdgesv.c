@@ -73,6 +73,9 @@ void HPL_pdgesv
  * with  or  without look-ahead.  The  lower  triangular  factor is left
  * unpivoted and the pivots are not returned. The right hand side is the
  * N+1 column of the coefficient matrix.
+ * HPL_pdgesv 使用带有行部分选点的LU分解对一个N+1乘以N的矩阵进行因子分解。
+ * 主算法是"右看"的变体，可选择是否使用前瞻。下三角因子保持未选点，并且不返回选点。
+ * 右侧是系数矩阵的第N+1列。
  *
  * Arguments
  * =========
