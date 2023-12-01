@@ -1,36 +1,36 @@
-/* 
- * -- High Performance Computing Linpack Benchmark (HPL)                
- *    HPL - 2.2 - February 24, 2016                          
- *    Antoine P. Petitet                                                
- *    University of Tennessee, Knoxville                                
- *    Innovative Computing Laboratory                                 
- *    (C) Copyright 2000-2008 All Rights Reserved                       
- *                                                                      
- * -- Copyright notice and Licensing terms:                             
- *                                                                      
+/*
+ * -- High Performance Computing Linpack Benchmark (HPL)
+ *    HPL - 2.2 - February 24, 2016
+ *    Antoine P. Petitet
+ *    University of Tennessee, Knoxville
+ *    Innovative Computing Laboratory
+ *    (C) Copyright 2000-2008 All Rights Reserved
+ *
+ * -- Copyright notice and Licensing terms:
+ *
  * Redistribution  and  use in  source and binary forms, with or without
  * modification, are  permitted provided  that the following  conditions
- * are met:                                                             
- *                                                                      
+ * are met:
+ *
  * 1. Redistributions  of  source  code  must retain the above copyright
- * notice, this list of conditions and the following disclaimer.        
- *                                                                      
+ * notice, this list of conditions and the following disclaimer.
+ *
  * 2. Redistributions in binary form must reproduce  the above copyright
  * notice, this list of conditions,  and the following disclaimer in the
- * documentation and/or other materials provided with the distribution. 
- *                                                                      
+ * documentation and/or other materials provided with the distribution.
+ *
  * 3. All  advertising  materials  mentioning  features  or  use of this
- * software must display the following acknowledgement:                 
+ * software must display the following acknowledgement:
  * This  product  includes  software  developed  at  the  University  of
- * Tennessee, Knoxville, Innovative Computing Laboratory.             
- *                                                                      
+ * Tennessee, Knoxville, Innovative Computing Laboratory.
+ *
  * 4. The name of the  University,  the name of the  Laboratory,  or the
  * names  of  its  contributors  may  not  be used to endorse or promote
  * products  derived   from   this  software  without  specific  written
- * permission.                                                          
- *                                                                      
- * -- Disclaimer:                                                       
- *                                                                      
+ * permission.
+ *
+ * -- Disclaimer:
+ *
  * THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -41,9 +41,9 @@
  * DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
  * THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * Include files
  */
@@ -73,13 +73,15 @@ void HPL_dlocswpT
    double *                         WORK;
 #endif
 {
-/* 
+/*
  * Purpose
  * =======
  *
  * HPL_dlocswpT performs  the local swapping operations  within a panel.
  * The lower triangular  N0-by-N0  upper block of the panel is stored in
  * transpose form.
+ * HPL_dlocswpT 在一个面板内执行局部交换操作
+ * 面板的下三角 N0xN0 上方块以转置形式存储。
  *
  * Arguments
  * =========
@@ -105,9 +107,17 @@ void HPL_dlocswpT
  *         row is stored in WORK[4:4+N0-1];  Note  that this is also the
  *         JJth row  (or column) of L1. The remaining part of this array
  *         is used as workspace.
+ * WORK（本地工作空间） double *
+ * 在进入时，WORK是一个大小至少为2 *（4 + 2 * N0）的工作数组。
+ * WORK[0] 包含本地最大绝对值标量，
+ * WORK[1] 包含相应的本地行索引，
+ * WORK[2] 包含相应的全局行索引，
+ * WORK[3] 是拥有此最大值的进程的坐标。
+ * N0长度的最大行存储在WORK[4:4+N0-1]中；请注意，这也是L1的第JJ行（或列）。
+ * 此数组的其余部分用作工作空间。
  *
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * .. Local Variables ..
  */
@@ -121,11 +131,12 @@ void HPL_dlocswpT
    myrow = PANEL->grid->myrow; n0 = PANEL->jb; lda = PANEL->lda;
 
    Wr0   = ( Wmx = WORK + 4 ) + n0; Wmx[JJ] = gmax = WORK[0];
-   nu    = (int)( ( (unsigned int)(n0) >> HPL_LOCSWP_LOG2_DEPTH ) 
+   nu    = (int)( ( (unsigned int)(n0) >> HPL_LOCSWP_LOG2_DEPTH )
                   << HPL_LOCSWP_LOG2_DEPTH );
    nr    = n0 - nu;
 /*
  * Replicated swap and copy of the current (new) row of A into L1
+ * 复制并交换当前（新的）A行到L1
  */
    L  = Mptr( PANEL->L1, 0, JJ, n0  );
 /*
@@ -203,7 +214,7 @@ void HPL_dlocswpT
                }
 
                for( i = 0; i < nr; i++, A1 += lda, A2 += lda )
-               { L[i] = *A1 = Wmx[i]; *A2 = Wr0[i]; }
+               { L[i] = *A1 = Wmx[i]; *A2 = Wr0[i]; }  /* 将主元所在的列与第一列数据交换， 保留主元所在的列，其结果是行主序系数矩阵的U，由于在这里系数矩阵是按照列存则相反对应的是L*/
             }
             else
             {
@@ -278,7 +289,7 @@ void HPL_dlocswpT
 #if ( HPL_LOCSWP_DEPTH > 16 )
                L[16]=*A1=Wmx[16]; A1+=lda; L[17]=*A1=Wmx[17]; A1+=lda;
                L[18]=*A1=Wmx[18]; A1+=lda; L[19]=*A1=Wmx[19]; A1+=lda;
-               L[20]=*A1=Wmx[20]; A1+=lda; L[21]=*A1=Wmx[21]; A1+=lda;
+               L[20]=*A1=Wmxd[20]; A1+=lda; L[21]=*A1=Wmx[21]; A1+=lda;
                L[22]=*A1=Wmx[22]; A1+=lda; L[23]=*A1=Wmx[23]; A1+=lda;
                L[24]=*A1=Wmx[24]; A1+=lda; L[25]=*A1=Wmx[25]; A1+=lda;
                L[26]=*A1=Wmx[26]; A1+=lda; L[27]=*A1=Wmx[27]; A1+=lda;
@@ -287,7 +298,7 @@ void HPL_dlocswpT
 #endif
             }
 
-            for( i = 0; i < nr; i++, A1 += lda ) { L[i]=*A1=Wmx[i]; } 
+            for( i = 0; i < nr; i++, A1 += lda ) { L[i]=*A1=Wmx[i]; }
          }
       }
       else

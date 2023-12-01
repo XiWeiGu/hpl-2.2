@@ -1,36 +1,36 @@
-/* 
- * -- High Performance Computing Linpack Benchmark (HPL)                
- *    HPL - 2.2 - February 24, 2016                          
- *    Antoine P. Petitet                                                
- *    University of Tennessee, Knoxville                                
- *    Innovative Computing Laboratory                                 
- *    (C) Copyright 2000-2008 All Rights Reserved                       
- *                                                                      
- * -- Copyright notice and Licensing terms:                             
- *                                                                      
+/*
+ * -- High Performance Computing Linpack Benchmark (HPL)
+ *    HPL - 2.2 - February 24, 2016
+ *    Antoine P. Petitet
+ *    University of Tennessee, Knoxville
+ *    Innovative Computing Laboratory
+ *    (C) Copyright 2000-2008 All Rights Reserved
+ *
+ * -- Copyright notice and Licensing terms:
+ *
  * Redistribution  and  use in  source and binary forms, with or without
  * modification, are  permitted provided  that the following  conditions
- * are met:                                                             
- *                                                                      
+ * are met:
+ *
  * 1. Redistributions  of  source  code  must retain the above copyright
- * notice, this list of conditions and the following disclaimer.        
- *                                                                      
+ * notice, this list of conditions and the following disclaimer.
+ *
  * 2. Redistributions in binary form must reproduce  the above copyright
  * notice, this list of conditions,  and the following disclaimer in the
- * documentation and/or other materials provided with the distribution. 
- *                                                                      
+ * documentation and/or other materials provided with the distribution.
+ *
  * 3. All  advertising  materials  mentioning  features  or  use of this
- * software must display the following acknowledgement:                 
+ * software must display the following acknowledgement:
  * This  product  includes  software  developed  at  the  University  of
- * Tennessee, Knoxville, Innovative Computing Laboratory.             
- *                                                                      
+ * Tennessee, Knoxville, Innovative Computing Laboratory.
+ *
  * 4. The name of the  University,  the name of the  Laboratory,  or the
  * names  of  its  contributors  may  not  be used to endorse or promote
  * products  derived   from   this  software  without  specific  written
- * permission.                                                          
- *                                                                      
- * -- Disclaimer:                                                       
- *                                                                      
+ * permission.
+ *
+ * -- Disclaimer:
+ *
  * THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -41,9 +41,9 @@
  * DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
  * THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * Include files
  */
@@ -64,7 +64,7 @@ void HPL_pdgesv0
    HPL_T_pmat *                     A;
 #endif
 {
-/* 
+/*
  * Purpose
  * =======
  *
@@ -73,6 +73,9 @@ void HPL_pdgesv0
  * without look-ahead. The lower triangular factor is left unpivoted and
  * the pivots are not returned. The right hand side is the N+1 column of
  * the coefficient matrix.
+ * HPL_pdgesv0 使用带有行部分选点的LU分解对一个大小为 N+1 行 N 列的矩阵进行因式分解。
+ * 主要算法是"right looking"变体，没有进行前瞻。下三角部分保持未选点，且不返回选点。
+ * 右侧是系数矩阵的第 N+1 列。
  *
  * Arguments
  * =========
@@ -90,7 +93,7 @@ void HPL_pdgesv0
  *         array information.
  *
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * .. Local Variables ..
  */
@@ -109,7 +112,7 @@ void HPL_pdgesv0
 #ifdef HPL_PROGRESS_REPORT
    start_time = HPL_timer_walltime();
 #endif
- 
+
    HPL_pdupdate = ALGO->upfun; nb = A->nb;
 /*
  * Allocate a panel list of length 1 - Allocate panel[0] resources
@@ -128,7 +131,7 @@ void HPL_pdgesv0
       n = N - j; jb = Mmin( n, nb );
 #ifdef HPL_PROGRESS_REPORT
       /* if this is process 0,0 and not the first panel */
-      if ( GRID->myrow == 0 && GRID->mycol == 0 && j > 0 ) 
+      if ( GRID->myrow == 0 && GRID->mycol == 0 && j > 0 )
       {
           time = HPL_timer_walltime() - start_time;
           gflops = 2.0*(N*(double)N*N - n*(double)n*n)/3.0/(time > 0.0 ? time : 1e-6)/1e9;
@@ -137,6 +140,7 @@ void HPL_pdgesv0
 #endif
 /*
  * Release panel resources - re-initialize panel data structure
+ * 释放面板资源 - 重新初始化面板数据结构
  */
       (void) HPL_pdpanel_free( panel[0] );
       HPL_pdpanel_init( GRID, ALGO, n, n+1, jb, A, j, j, tag, panel[0] );

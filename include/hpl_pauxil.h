@@ -112,6 +112,7 @@
 /*
  * Mindxl2g computes the global index ig_ corresponding to the local
  * index il_ in process proc_.
+ * Mindxl2g 计算在进程 proc_ 中与本地索引 il_ 对应的全局索引 ig_。
  */
 #define    Mindxl2g( ig_, il_, inb_, nb_, proc_, src_, nprocs_ )       \
            {                                                           \

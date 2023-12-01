@@ -1,36 +1,36 @@
-/* 
- * -- High Performance Computing Linpack Benchmark (HPL)                
- *    HPL - 2.2 - February 24, 2016                          
- *    Antoine P. Petitet                                                
- *    University of Tennessee, Knoxville                                
- *    Innovative Computing Laboratory                                 
- *    (C) Copyright 2000-2008 All Rights Reserved                       
- *                                                                      
- * -- Copyright notice and Licensing terms:                             
- *                                                                      
+/*
+ * -- High Performance Computing Linpack Benchmark (HPL)
+ *    HPL - 2.2 - February 24, 2016
+ *    Antoine P. Petitet
+ *    University of Tennessee, Knoxville
+ *    Innovative Computing Laboratory
+ *    (C) Copyright 2000-2008 All Rights Reserved
+ *
+ * -- Copyright notice and Licensing terms:
+ *
  * Redistribution  and  use in  source and binary forms, with or without
  * modification, are  permitted provided  that the following  conditions
- * are met:                                                             
- *                                                                      
+ * are met:
+ *
  * 1. Redistributions  of  source  code  must retain the above copyright
- * notice, this list of conditions and the following disclaimer.        
- *                                                                      
+ * notice, this list of conditions and the following disclaimer.
+ *
  * 2. Redistributions in binary form must reproduce  the above copyright
  * notice, this list of conditions,  and the following disclaimer in the
- * documentation and/or other materials provided with the distribution. 
- *                                                                      
+ * documentation and/or other materials provided with the distribution.
+ *
  * 3. All  advertising  materials  mentioning  features  or  use of this
- * software must display the following acknowledgement:                 
+ * software must display the following acknowledgement:
  * This  product  includes  software  developed  at  the  University  of
- * Tennessee, Knoxville, Innovative Computing Laboratory.             
- *                                                                      
+ * Tennessee, Knoxville, Innovative Computing Laboratory.
+ *
  * 4. The name of the  University,  the name of the  Laboratory,  or the
  * names  of  its  contributors  may  not  be used to endorse or promote
  * products  derived   from   this  software  without  specific  written
- * permission.                                                          
- *                                                                      
- * -- Disclaimer:                                                       
- *                                                                      
+ * permission.
+ *
+ * -- Disclaimer:
+ *
  * THIS  SOFTWARE  IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,  INCLUDING,  BUT NOT
  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
@@ -41,9 +41,9 @@
  * DATA OR PROFITS; OR BUSINESS INTERRUPTION)  HOWEVER CAUSED AND ON ANY
  * THEORY OF LIABILITY, WHETHER IN CONTRACT,  STRICT LIABILITY,  OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * Include files
  */
@@ -84,12 +84,12 @@ void HPL_pdpanel_init
    HPL_T_panel *                    PANEL;
 #endif
 {
-/* 
+/*
  * Purpose
  * =======
  *
  * HPL_pdpanel_init initializes a panel data structure.
- * 
+ *
  *
  * Arguments
  * =========
@@ -134,7 +134,7 @@ void HPL_pdpanel_init
  *         panel information.
  *
  * ---------------------------------------------------------------------
- */ 
+ */
 /*
  * .. Local Variables ..
  */
@@ -154,8 +154,8 @@ void HPL_pdpanel_init
 
    HPL_infog2l( IA, JA, nb, nb, nb, nb, 0, 0, myrow, mycol,
                 nprow, npcol, &ii, &jj, &icurrow, &icurcol );
-   mp = HPL_numrocI( M, IA, nb, nb, myrow, 0, nprow );
-   nq = HPL_numrocI( N, JA, nb, nb, mycol, 0, npcol );
+   mp = HPL_numrocI( M, IA, nb, nb, myrow, 0, nprow ); /* If nprow == 1, just return M */
+   nq = HPL_numrocI( N, JA, nb, nb, mycol, 0, npcol ); /* If npcol == 1, just return N */
                                          /* ptr to trailing part of A */
    PANEL->A       = Mptr( (double *)(A->A), ii, jj, A->ld );
 /*
@@ -197,9 +197,17 @@ void HPL_pdpanel_init
  * DINFO: 1       in all processes
  *
  * We make sure that those three arrays are contiguous in memory for the
- * later panel broadcast.  We  also  choose  to put this amount of space 
+ * later panel broadcast.  We  also  choose  to put this amount of space
  * right  after  L2 (when it exist) so that one can receive a contiguous
  * buffer.
+ * 计算因子分解和更新所需的确切工作空间量 - 分配该空间 - 完成面板数据结构的初始化。
+ *
+ * L1:    所有进程中的 JB x JB
+ * DPIV:  所有进程中的 JB
+ * DINFO: 所有进程中的 1
+ *
+ * 我们确保这三个数组在内存中是连续的，以便进行后续的面板广播。我们还选择将这些空间放在
+ * L2（如果存在）的后面，以便可以接收一个连续的缓冲区。
  */
    dalign = ALGO->align * sizeof( double );
 
@@ -209,7 +217,7 @@ void HPL_pdpanel_init
       if( nprow > 1 )                                 /* space for U */
       { nu = nq - JB; lwork += JB * Mmax( 0, nu ); }
 
-      if( !( PANEL->WORK = (void *)malloc( (size_t)(lwork) * 
+      if( !( PANEL->WORK = (void *)malloc( (size_t)(lwork) *
                                            sizeof( double ) ) ) )
       {
          HPL_pabort( __LINE__, "HPL_pdpanel_init",
@@ -218,6 +226,7 @@ void HPL_pdpanel_init
 /*
  * Initialize the pointers of the panel structure  -  Always re-use A in
  * the only process column
+ * 初始化面板结构的指针 - 始终在唯一的进程列中重用A
  */
       PANEL->L2    = PANEL->A + ( myrow == icurrow ? JB : 0 );
       PANEL->ldl2  = A->ld;
@@ -236,7 +245,7 @@ void HPL_pdpanel_init
       lwork = ALGO->align + ( mycol == icurcol ? itmp1 : PANEL->len );
 #endif
       if( nprow > 1 )                                 /* space for U */
-      { 
+      {
          nu = ( mycol == icurcol ? nq - JB : nq );
          lwork += JB * Mmax( 0, nu );
       }
@@ -267,7 +276,7 @@ void HPL_pdpanel_init
          PANEL->L2   = (double *)HPL_PTR( PANEL->WORK, dalign );
          PANEL->ldl2 = Mmax( 1, ml2 );
          PANEL->L1   = PANEL->L2 + ml2 * JB;
-      } 
+      }
 #endif
       PANEL->DPIV  = PANEL->L1   + JB * JB;
       PANEL->DINFO = PANEL->DPIV + JB;     *(PANEL->DINFO) = 0.0;
@@ -284,7 +293,7 @@ void HPL_pdpanel_init
                                       (vsip_length)(PANEL->ldl2*JB),
                                       VSIP_MEM_NONE );
    if( nprow > 1 )
-   { 
+   {
       nu = ( mycol == icurcol ? nq - JB : nq );
       PANEL->Ublock = vsip_blockbind_d( (vsip_scalar_d *)(PANEL->U),
                                         (vsip_length)(JB * Mmax( 0, nu )),
@@ -328,9 +337,41 @@ void HPL_pdpanel_init
  *    IWORK[0] =  0: HPL_pdlaswp00 already computed those arrays;
  *    IWORK[0] =  1: HPL_pdlaswp01 already computed those arrays;
  * This allows to save some redundant and useless computations.
+ * 如果nprow为1，我们只需为交换分配一个JB整数的数组。
+ * 当nprow > 1时，我们立即为索引数组分配空间。
+ * 此数组的确切大小取决于将要使用的交换例程，因此我们分配最大值：
+ *
+ *    IWORK[0] 的大小最多为 1      +
+ *    IPL      的大小最多为 1      +
+ *    IPID     的大小最多为 4 * JB +
+ *
+ *    对于 HPL_pdlaswp00:
+ *       lindxA   的大小最多为 2 * JB +
+ *       lindxAU  的大小最多为 2 * JB +
+ *       llen     的大小最多为 NPROW  +
+ *       llen_sv  的大小最多为 NPROW。
+ *
+ *    对于 HPL_pdlaswp01:
+ *       ipA      的大小最多为 1      +
+ *       lindxA   的大小最多为 2 * JB +
+ *       lindxAU  的大小最多为 2 * JB +
+ *       iplen    的大小最多为 NPROW  + 1 +
+ *       ipmap    的大小最多为 NPROW  +
+ *       ipmapm1  的大小最多为 NPROW  +
+ *       permU    的大小最多为 JB     +
+ *       iwork    的大小最多为 MAX( 2*JB, NPROW+1 )。
+ *
+ * 即  3 + 8*JB + MAX(2*NPROW, 3*NPROW+1+JB+MAX(2*JB,NPROW+1))
+ *    =  4 + 9*JB + 3*NPROW + MAX( 2*JB, NPROW+1 )。
+ * 我们使用工作数组的第一个条目来指示是否已经计算了本地索引数组，如果是的话，
+ * 是由哪个函数计算的：
+ *    IWORK[0] = -1：到目前为止还没有计算索引数组；
+ *    IWORK[0] =  0：HPL_pdlaswp00已经计算了这些数组；
+ *    IWORK[0] =  1：HPL_pdlaswp01已经计算了这些数组；
+ * 这允许节省一些冗余和无用的计算。
  */
    if( nprow == 1 ) { lwork = JB; }
-   else             
+   else
    {
       itmp1 = (JB << 1); lwork = nprow + 1; itmp1 = Mmax( itmp1, lwork );
       lwork = 4 + (9 * JB) + (3 * nprow) + itmp1;

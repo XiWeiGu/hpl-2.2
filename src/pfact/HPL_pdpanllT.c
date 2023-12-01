@@ -164,7 +164,7 @@ void HPL_pdpanllT
 /*
  * Find local absolute value max in first column and initialize WORK[0:3]
  */
-   HPL_dlocmax( PANEL, m, ii, jj, WORK );
+   HPL_dlocmax( PANEL, m, ii, jj, WORK ); /* 由于系数矩阵是按照列存储的，也就是找到主元所在的行，然后进行列交换 */
 
    while( Nm1 > 0 )
    {
@@ -172,7 +172,7 @@ void HPL_pdpanllT
  * Swap and broadcast the current row
  */
       HPL_pdmxswp(  PANEL, m, ii, jj, WORK );
-      HPL_dlocswpT( PANEL,    ii, jj, WORK );
+      HPL_dlocswpT( PANEL,    ii, jj, WORK ); /* 交换主元，获取下三角的值 */
 
       L1ptr = Mptr( L1, jj+1, ICOFF, n0 ); kk = jj + 1 - ICOFF;
       HPL_dtrsv( HplColumnMajor, HplUpper, HplTrans,   HplUnit, kk,
