@@ -93,13 +93,23 @@ typedef struct HPL_S_test
  */
 #ifdef HPL_DETAILED_TIMING
 #define    HPL_TIMING_BEG        11 /* timer 0 reserved, used by main */
-#define    HPL_TIMING_N           6 /* number of timers defined below */
+#define    HPL_TIMING_N          16 /* number of timers defined below */
 #define    HPL_TIMING_RPFACT     11 /* starting from here, contiguous */
 #define    HPL_TIMING_PFACT      12
 #define    HPL_TIMING_MXSWP      13
 #define    HPL_TIMING_UPDATE     14
 #define    HPL_TIMING_LASWP      15
 #define    HPL_TIMING_PTRSV      16
+#define    HPL_TIMING_DGEMM	 17 /* HPL_dgemm spend */
+#define    HPL_TIMING_DTRSM	 18 /* HPL_dtrsm spend */
+#define    HPL_TIMING_DGEMV	 19 /* HPL_dgemv spend */
+#define    HPL_TIMING_DGER	 20 /* HPL_dger spend */
+#define    HPL_TIMING_DTRSV	 21 /* HPL_dtrsv spend */
+#define    HPL_TIMING_DSWAP	 22 /* HPL_dswap spend */
+#define    HPL_TIMING_DCOPY	 23 /* HPL_dcopy spend */
+#define    HPL_TIMING_DAXPY	 24 /* HPL_daxpy spend */
+#define    HPL_TIMING_DSCAL	 25 /* HPL_dscal spend */
+#define    HPL_TIMING_IDAMAX	 26 /* HPL_idamax spend */
 #endif
 /*
  * ---------------------------------------------------------------------

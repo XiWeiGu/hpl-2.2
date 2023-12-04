@@ -154,23 +154,77 @@ STDC_ARGS(
    const enum CBLAS_DIAG,            const int,       const int,
    const double,    const double *,  const int,       double *,
    const int ) );
+
+CBLAS_INDEX       g_cblas_idamax
+STDC_ARGS(
+(  const int,       const double *,  const int ) );
+void              g_cblas_dswap
+STDC_ARGS(
+(  const int,       double *,        const int,       double *,
+   const int ) );
+void              g_cblas_dcopy
+STDC_ARGS(
+(  const int,       const double *,  const int,       double *,
+   const int ) );
+void              g_cblas_daxpy
+STDC_ARGS(
+(  const int,       const double,    const double *,  const int,
+   double *,        const int ) );
+void              g_cblas_dscal
+STDC_ARGS(
+(  const int,       const double,    double *,        const int ) );
+
+void              g_cblas_dgemv
+STDC_ARGS(
+(  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE,
+   const int,       const int,       const double,    const double *,
+   const int,       const double *,  const int,       const double,
+   double *,        const int ) );
+
+void              g_cblas_dger
+STDC_ARGS(
+(  const enum CBLAS_ORDER,           const int,       const int,
+   const double,    const double *,  const int,       const double *,
+   const int,       double *,        const int ) );
+void              g_cblas_dtrsv
+STDC_ARGS(
+(  const enum CBLAS_ORDER,           const enum CBLAS_UPLO,
+   const enum CBLAS_TRANSPOSE,       const enum CBLAS_DIAG,
+   const int,       const double *,  const int,       double *,
+   const int ) );
+
+void              g_cblas_dgemm
+STDC_ARGS(
+(  const enum CBLAS_ORDER,           const enum CBLAS_TRANSPOSE,
+   const enum CBLAS_TRANSPOSE,       const int,       const int,
+   const int,       const double,    const double *,  const int,
+   const double *,  const int,       const double,    double *,
+   const int ) );
+void              g_cblas_dtrsm
+STDC_ARGS(
+(  const enum CBLAS_ORDER,           const enum CBLAS_SIDE,
+   const enum CBLAS_UPLO,            const enum CBLAS_TRANSPOSE,
+   const enum CBLAS_DIAG,            const int,       const int,
+   const double,    const double *,  const int,       double *,
+   const int ) );
+
 /*
  * ---------------------------------------------------------------------
  * HPL C BLAS macro definition
  * ---------------------------------------------------------------------
  */
-#define    HPL_dswap           cblas_dswap
-#define    HPL_dcopy           cblas_dcopy
-#define    HPL_daxpy           cblas_daxpy
-#define    HPL_dscal           cblas_dscal
-#define    HPL_idamax          cblas_idamax
+#define    HPL_dswap           g_cblas_dswap
+#define    HPL_dcopy           g_cblas_dcopy
+#define    HPL_daxpy           g_cblas_daxpy
+#define    HPL_dscal           g_cblas_dscal
+#define    HPL_idamax          g_cblas_idamax
 
-#define    HPL_dgemv           cblas_dgemv
-#define    HPL_dtrsv           cblas_dtrsv
-#define    HPL_dger            cblas_dger
+#define    HPL_dgemv           g_cblas_dgemv
+#define    HPL_dtrsv           g_cblas_dtrsv
+#define    HPL_dger            g_cblas_dger
 
-#define    HPL_dgemm           cblas_dgemm
-#define    HPL_dtrsm           cblas_dtrsm
+#define    HPL_dgemm           g_cblas_dgemm
+#define    HPL_dtrsm           g_cblas_dtrsm
 
 #endif
 

@@ -164,19 +164,19 @@ void HPL_pdpanllT
 /*
  * Find local absolute value max in first column and initialize WORK[0:3]
  */
-   HPL_dlocmax( PANEL, m, ii, jj, WORK ); /* 由于系数矩阵是按照列存储的，也就是找到主元所在的行，然后进行列交换 */
+   HPL_dlocmax( PANEL, m, ii, jj, WORK ); /* 由于系数矩阵是按照列存储的，也就是找到主元(绝对值最大)所在的行，然后进行列交换 */
 
    while( Nm1 > 0 )
    {
 /*
  * Swap and broadcast the current row
  */
-      HPL_pdmxswp(  PANEL, m, ii, jj, WORK );
-      HPL_dlocswpT( PANEL,    ii, jj, WORK ); /* 交换主元，获取下三角的值 */
+      HPL_pdmxswp(  PANEL, m, ii, jj, WORK ); /* 将第一列和主元所在的列拷贝到WORK中 */
+      HPL_dlocswpT( PANEL,    ii, jj, WORK ); /* 交换主元，获取下三角的值 存在PANEL->L1中 */
 
       L1ptr = Mptr( L1, jj+1, ICOFF, n0 ); kk = jj + 1 - ICOFF;
       HPL_dtrsv( HplColumnMajor, HplUpper, HplTrans,   HplUnit, kk,
-                 Mptr( L1, ICOFF, ICOFF, n0 ), n0, L1ptr, n0 );
+                 Mptr( L1, ICOFF, ICOFF, n0 ), n0, L1ptr, n0 ); /* 不清楚这是干什么的，在第一次进入的时候应该是什么都没有干 */
 /*
  * Scale  current column by its absolute value max entry  -  Update  and 
  * find local  absolute value max  in next column (Only one pass through 
@@ -184,7 +184,7 @@ void HPL_pdpanllT
  * fit from a specialized  blocked implementation.
  */ 
       if( WORK[0] != HPL_rzero )
-         HPL_dscal( Mm1, HPL_rone / WORK[0], Mptr( A, iip1, jj, lda ), 1 );
+         HPL_dscal( Mm1, HPL_rone / WORK[0], Mptr( A, iip1, jj, lda ), 1 ); /* 得到l_{i1}, 结果在A的基础上原地修改 */
 #ifdef HPL_CALL_VSIPL
 /*
  * Create the matrix subviews
@@ -202,9 +202,9 @@ void HPL_pdpanllT
       (void) vsip_mdestroy_d( Xv1 );
       (void) vsip_mdestroy_d( Av1 );
 #else
-      HPL_dgemv( HplColumnMajor, HplNoTrans, Mm1, kk,  -HPL_rone,
-                 Mptr( A, iip1, ICOFF, lda ), lda, L1ptr, n0,
-                 HPL_rone, Mptr( A, iip1, jj+1, lda ),  1 );
+      HPL_dgemv( HplColumnMajor, HplNoTrans, Mm1, kk,  -HPL_rone, /* y -= A * x, 根据缩放因子更新A第二行的值, 在A的基础上原地修改 */
+                 Mptr( A, iip1, ICOFF, lda ) , lda, L1ptr, n0,
+                 HPL_rone, Mptr( A, iip1, jj+1, lda ) ,  1 );
 #endif
       HPL_dlocmax( PANEL, Mm1, iip1, jj+1, WORK );
       if( curr != 0 )

@@ -189,7 +189,7 @@ void HPL_pdmxswp
       HPL_dcopy( n0, Mptr( PANEL->A, II+(int)(WORK[1]), 0, lda ), lda,
                  Wmx, 1 ); /* 将主元所在的列拷贝至Wmx中，由于数据是按列存储，拷贝过程为单个元素逐一拷贝 */
       if( myrow == icurrow )
-      { HPL_dcopy( n0, Mptr( PANEL->A, II, 0, lda ), lda, A0, 1 ); } /* 将第一行元素拷贝至Wmx中，由于数据是按列存储，拷贝过程为单个元素逐一拷贝 */
+      { HPL_dcopy( n0, Mptr( PANEL->A, II, 0, lda ), lda, A0, 1 ); } /* 将第一行元素拷贝至A0中，由于数据是按列存储，拷贝过程为单个元素逐一拷贝 */
    }
    else { for( i = 0; i < n0; i++ ) Wmx[i] = HPL_rzero; }
 /*

@@ -289,7 +289,7 @@ void HPL_dlocswpT
 #if ( HPL_LOCSWP_DEPTH > 16 )
                L[16]=*A1=Wmx[16]; A1+=lda; L[17]=*A1=Wmx[17]; A1+=lda;
                L[18]=*A1=Wmx[18]; A1+=lda; L[19]=*A1=Wmx[19]; A1+=lda;
-               L[20]=*A1=Wmxd[20]; A1+=lda; L[21]=*A1=Wmx[21]; A1+=lda;
+               L[20]=*A1=Wmx[20]; A1+=lda; L[21]=*A1=Wmx[21]; A1+=lda;
                L[22]=*A1=Wmx[22]; A1+=lda; L[23]=*A1=Wmx[23]; A1+=lda;
                L[24]=*A1=Wmx[24]; A1+=lda; L[25]=*A1=Wmx[25]; A1+=lda;
                L[26]=*A1=Wmx[26]; A1+=lda; L[27]=*A1=Wmx[27]; A1+=lda;

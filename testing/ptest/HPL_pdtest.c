@@ -49,6 +49,8 @@
  */
 #include "hpl.h"
 
+#include "HPL_pdblas.h"
+
 #ifdef STDC_HEADERS
 void HPL_pdtest
 (
@@ -180,7 +182,7 @@ void HPL_pdtest
       ii = ( mat.ld += ALGO->align ); ip2 = 1;
       while( ii > 1 ) { ii >>= 1; ip2 <<= 1; }
    }
-   while( mat.ld == ip2 );
+   while( mat.ld == ip2 ); /* 保证ld是ALIGN的倍数，并且不是2的幂的最小值 */
 /*
  * Allocate dynamic memory
  */
@@ -206,7 +208,7 @@ void HPL_pdtest
    mat.A  = (double *)HPL_PTR( vptr,
                                ((size_t)(ALGO->align) * sizeof(double) ) );
    mat.X  = Mptr( mat.A, 0, mat.nq, mat.ld );
-   HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, HPL_ISEED );
+   HPL_pdmatgen( GRID, N, N+1, NB, mat.A, mat.ld, HPL_ISEED ); /* 初始化A和b，都是以列存储，b在最后一列 */
 #ifdef HPL_CALL_VSIPL
    mat.block = vsip_blockbind_d( (vsip_scalar_d *)(mat.A),
                                  (vsip_length)(mat.ld * mat.nq),
@@ -337,6 +339,76 @@ void HPL_pdtest
          HPL_fprintf( TEST->outfp, "%s%s\n",
                       "========================================",
                       "========================================" );
+/*
+ * Dgemm
+ */
+      if( HPL_w[HPL_TIMING_DGEMM-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Dgemm  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DGEMM-HPL_TIMING_BEG] );
+/*
+ * Dtrsm
+ */
+      if( HPL_w[HPL_TIMING_DTRSM-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Dtrsm  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DTRSM-HPL_TIMING_BEG] );
+/*
+ * Dgemv
+ */
+      if( HPL_w[HPL_TIMING_DGEMV-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Dgemv  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DGEMV-HPL_TIMING_BEG] );
+/*
+ * Dtrsv
+ */
+      if( HPL_w[HPL_TIMING_DTRSV-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Dtrsv  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DTRSV-HPL_TIMING_BEG] );
+/*
+ * Dger
+ */
+      if( HPL_w[HPL_TIMING_DGER-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Dger  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DGER-HPL_TIMING_BEG] );
+/*
+ * Dswap
+ */
+      if( HPL_w[HPL_TIMING_DSWAP-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Dswap  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DSWAP-HPL_TIMING_BEG] );
+/*
+ * Dcopy
+ */
+      if( HPL_w[HPL_TIMING_DCOPY-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Dcopy  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DCOPY-HPL_TIMING_BEG] );
+/*
+ * Daxpy
+ */
+      if( HPL_w[HPL_TIMING_DAXPY-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Daxpy  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DAXPY-HPL_TIMING_BEG] );
+/*
+ * Dscal
+ */
+      if( HPL_w[HPL_TIMING_DSCAL-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Dscal  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_DSCAL-HPL_TIMING_BEG] );
+/*
+ * Idamax
+ */
+      if( HPL_w[HPL_TIMING_IDAMAX-HPL_TIMING_BEG] > HPL_rzero )
+         HPL_fprintf( TEST->outfp,
+                      "Idamax  . : %18.2f\n",
+                      HPL_w[HPL_TIMING_IDAMAX-HPL_TIMING_BEG] );
    }
 #endif
 /*

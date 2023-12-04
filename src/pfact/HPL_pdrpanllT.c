@@ -224,6 +224,7 @@ void HPL_pdrpanllT
       HPL_pdrpanllT( PANEL, m, jb, ioff, WORK );
 /*
  * Copy back upper part of A in current process row - Go the next block
+ * 将A的上半部分复制回当前进程行 - 转到下一个块。
  */
       if( curr != 0 )
       {
